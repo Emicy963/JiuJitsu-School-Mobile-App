@@ -1,4 +1,5 @@
 import flet as ft
+import requests
 
 API_BASE_URL = 'http://localhost:8000/api/'
 
@@ -10,6 +11,23 @@ def main(page: ft.Page):
     belt_field = ft.TextField(label='Faixa')
     date_birth_field = ft.TextField(label='Data de Nascimento (YYYY-MM-DD)')
     creat_result = ft.Text()
+
+    def creat_student(e):
+        payload = {
+            'name': name_field.value,
+            'email': email_field.value,
+            'belt': belt_field.value,
+            'date_birth': date_birth_field.value
+        }
+
+        response = requests.post(API_BASE_URL + '', json=payload)
+        if response.status_code == 200:
+            student = response.json()
+            creat_result.value = f'Aluno Criado: {student}'
+        else:
+            creat_result.value = f'Erro: {response.text}'
+
+        page.update()
 
     creat_button = ft.ElevatedButton(text='Criar Aluno', on_click=creat_student)
 
