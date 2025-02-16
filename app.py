@@ -81,12 +81,36 @@ def main(page: ft.Page):
         scroll=True
     )
 
-    
+    """ Add Classes """
+
+    email_class_field = ft.TextField(label='Email do aluno')
+    qtd_class_field = ft.TextField(label='Quantidades de aulas', value=1)
+    class_result = ft.Text()
+
+    def book_class_click(e):
+        payload = {
+            'qtd': int(qtd_class_field.value),
+            'email_student': email_class_field.value
+        }
+
+        response = requests.post(API_BASE_URL + 'class_held/', json=payload)
+        
+        if response.status_code == 200:
+            class_result.value = f'Sucesso: {response.json()}'
+        else:
+            class_result.value = f'Erro: {response.text}'
+        
+        page.update()
+        
+    class_button = ft.ElevatedButton(text='Marcar aula realizada', on_click=book_class_click)
+    class_tab = ft.Column([email_class_field, qtd_class_field, class_result, class_button], scroll=True)
+
     tabs = ft.Tabs(
         selected_index=0,
         tabs=[
             ft.Tab(text='Criar Aluno', content=creat_student_tab),
             ft.Tab(text='Listar Aluno', content=list_student_tab),
+            ft.Tab(text='Cadastrar aula', content=class_tab),
         ]
     )
 
