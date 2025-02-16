@@ -101,9 +101,33 @@ def main(page: ft.Page):
             class_result.value = f'Erro: {response.text}'
         
         page.update()
-        
+
     class_button = ft.ElevatedButton(text='Marcar aula realizada', on_click=book_class_click)
     class_tab = ft.Column([email_class_field, qtd_class_field, class_result, class_button], scroll=True)
+
+    """ Student Progress """
+
+    email_progress_field = ft.TextField(label='Email do aluno')
+    progress_result = ft.Text()
+
+    def consult_progress_click(e):
+        email = email_progress_field.value
+        response = requests.get(API_BASE_URL + 'progress_student/', params={'email_student': email})
+        if response.status_code == 200:
+            progress = response.json()
+            progress_result.value = (
+                f'Nome: {progress.get('name')}\n'
+                f'Email: {progress.get('email')}\n'
+                f'Faixa: {progress.get('belt')}\n'
+                f'Total de aulas: {progress.get('total_class')}\n'
+                f'Aulas necessárias para a próxima faixa: {progress.get('class_for_next_belt')}'
+            )
+        else:
+            progress_result.value = f'Erro: {response.text}'
+        page.update()
+
+    progress_button = ft.ElevatedButton(text='Consultar progresso', on_click=consult_progress_click)
+    progress_tab = ft.Column([email_progress_field, progress_result, progress_button], scroll=True)
 
     tabs = ft.Tabs(
         selected_index=0,
@@ -111,6 +135,7 @@ def main(page: ft.Page):
             ft.Tab(text='Criar Aluno', content=creat_student_tab),
             ft.Tab(text='Listar Aluno', content=list_student_tab),
             ft.Tab(text='Cadastrar aula', content=class_tab),
+            ft.Tab(text='Progresso do aula', content=progress_tab),
         ]
     )
 
