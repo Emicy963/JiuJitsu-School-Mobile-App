@@ -129,6 +129,48 @@ def main(page: ft.Page):
     progress_button = ft.ElevatedButton(text='Consultar progresso', on_click=consult_progress_click)
     progress_tab = ft.Column([email_progress_field, progress_result, progress_button], scroll=True)
 
+    """ Upgrade Student """
+
+    id_student_field = ft.TextField(label='ID Aluno')
+    name_update_field = ft.TextField(label='Novo nome')
+    email_update_field = ft.TextField(label='Novo email')
+    belt_update_field = ft.TextField(label='Nova faixa')
+    date_birth_update_field = ft.TextField(label='Nova data de nascimento')
+    update_result = ft.Text()
+
+    def update_student_click(e):
+        student_id = id_student_field.value
+        if not student_id:
+            update_result.value = 'ID do aluno é obrigatório'
+        else:
+            payload = {
+                'name':name_update_field.value,
+                'email': email_update_field.value,
+                'belt': belt_update_field.value,
+                'date_birth': date_birth_update_field.value
+                }
+
+            response = requests.put(API_BASE_URL + f'students/{student_id}', json=payload)
+            if response.status_code == 200:
+                student = response.json()
+                update_result.value = f'Aluno atualizado: {student}'
+            else:
+                update_result.value = f'Erro: {response.text}'
+        
+        page.update()
+                  
+    update_button = ft.ElevatedButton(text='Atualizar alunos', on_click=update_student_click)
+    update_tab = ft.Column(
+        [
+            id_student_field,
+            name_update_field,
+            email_update_field,
+            belt_update_field,
+            date_birth_update_field,
+            update_button,
+            update_result,
+        ], scroll=True
+    )
     tabs = ft.Tabs(
         selected_index=0,
         tabs=[
@@ -136,6 +178,7 @@ def main(page: ft.Page):
             ft.Tab(text='Listar Aluno', content=list_student_tab),
             ft.Tab(text='Cadastrar aula', content=class_tab),
             ft.Tab(text='Progresso do aula', content=progress_tab),
+            ft.Tab(text='Atualizar aula', content=update_tab),
         ]
     )
 
