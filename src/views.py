@@ -47,18 +47,42 @@ class AcademyViews:
         return ft.Tabs(
             selected_index=0,
             tabs=[
+                ft.Tab(text='Novo Aluno', content=self.create_student_tab()),
                 ft.Tab(text='Listar Aluno', content=self.list_student_tab())
             ]
         )
     
     # Tabs views
+    ## Create Tab
+    def create_student_tab(self):
+        return ft.Column([
+            self.name_field,
+            self.email_field,
+            self.belt_field,
+            self.date_birth_field,
+            ft.ElevatedButton(text='Novo Aluno', on_click=self.create_student_click)
+        ], scroll=True)
+    
     def list_student_tab(self):
         return ft.Column([
             self.list_student_tab,
             self.list_result,
-            ft.ElevatedButton(text='Listar Alunos', on_click=True)
+            ft.ElevatedButton(text='Listar Alunos', on_click=self.list_student_click)
         ], scroll=True)
     
+    # Click methods
+    ## Create click method
+    def create_student_click(self, e):
+        try:
+            response = self.controller.handle_create_student(self.name_field, self.email_field, self.belt_field, self.date_birth_field)
+
+            self.create_result.value = 'Create student sucess!' if response.status_code==200 else 'Erro ao criar o aluno!'
+            self.page.update()
+        except Exception as err:
+            self.create_result.value = f'Erro: {str(err)}'
+            self.page.update()
+    
+    ## List student click method
     def list_student_click(self, e):
         try:
             students = self.controller.handle_get_all_student().json()
