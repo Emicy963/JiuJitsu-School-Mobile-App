@@ -50,7 +50,8 @@ class AcademyViews:
                 ft.Tab(text='Novo Aluno', content=self.create_student_tab()),
                 ft.Tab(text='Listar Aluno', content=self.list_student_tab()),
                 ft.Tab(text='Cadastrar Aula', content=self.book_class_tab()),
-                ft.Tab(text='Consultar Progresso', content=self.consult_progress_tab())
+                ft.Tab(text='Consultar Progresso', content=self.consult_progress_tab()),
+                ft.Tab(text='Atualizar Aluno', content=self.update_student_tab()),
             ]
         )
     
@@ -88,6 +89,18 @@ class AcademyViews:
             self.email_progress_field,
             ft.ElevatedButton(text='Consultar progresso', on_click=self.consult_progres_click),
             self.progress_result,
+        ], scroll=True)
+    
+    ## Update Student Tab
+    def update_student_tab(self):
+        return ft.Column([
+            self.id_student_field,
+            self.name_update_field,
+            self.email_update_field,
+            self.belt_update_field,
+            self.date_update_field,
+            ft.ElevatedButton(text='Atualizar Aluno', on_click=self.update_student_click),
+            self.update_result,
         ], scroll=True)
     
     # Click methods
@@ -139,6 +152,7 @@ class AcademyViews:
             self.class_result.value = f'Erro: {str(err)}'
             self.page.update()
 
+    ## Conult Progress Click
     def consult_progres_click(self, e):
         try:
             response = self.controller.handle_consult_progress(self.email_progress_field)
@@ -156,4 +170,22 @@ class AcademyViews:
             self.page.update()
         except Exception as err:
             self.progress_result.value = f'Erro: {str(err)}'
+            self.page.update()
+
+    ## Update Student Click
+    def update_student_click(self, e):
+        try:
+            id_student = self.id_student_field.value
+            if not id_student:
+                self.update_result.value = 'ID do Aluno é obrigatório'
+            else:
+                response = self.controller.handle_update_student(id_student, self.name_update_field.value, self.email_update_field, self.belt_update_field, self.date_update_field.value)
+                if response.status_code==200:
+                    student = response.json()
+                    self.update_result.value = f'Aluno atualizado com sucesso: {student.get('name')}'
+                else:
+                    self.update_result.value = f'Erro ao atualizar aluno: {response.text}'
+            self.page.update()
+        except Exception as err:
+            self.update_result.value = f'Erro: {str(err)}'
             self.page.update()
