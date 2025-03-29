@@ -50,6 +50,7 @@ class AcademyViews:
                 ft.Tab(text='Novo Aluno', content=self.create_student_tab()),
                 ft.Tab(text='Listar Aluno', content=self.list_student_tab()),
                 ft.Tab(text='Cadastrar Aula', content=self.book_class_tab()),
+                ft.Tab(text='Consultar Progresso', content=self.consult_progress_tab())
             ]
         )
     
@@ -79,6 +80,14 @@ class AcademyViews:
             self.qtd_class_field,
             ft.ElevatedButton(text='Marcar aula realizada!', on_click=self.book_class_click),
             self.class_result,
+        ], scroll=True)
+    
+    ## Student Progress Tab
+    def consult_progress_tab(self):
+        return ft.Column([
+            self.email_progress_field,
+            ft.ElevatedButton(text='Consultar progresso', on_click=self.consult_progres_click),
+            self.progress_result,
         ], scroll=True)
     
     # Click methods
@@ -128,4 +137,23 @@ class AcademyViews:
                 self.page.update()
         except Exception as err:
             self.class_result.value = f'Erro: {str(err)}'
+            self.page.update()
+
+    def consult_progres_click(self, e):
+        try:
+            response = self.controller.handle_consult_progress(self.email_progress_field)
+            if response.status_code == 200:
+                progress = response.json()
+                self.progress_result.value = (
+                    f'Nome: {progress.get('name')}\n',
+                    f'Email: {progress.get('email')}\n',
+                    f'Faixa: {progress.get('belt')}\n',
+                    f'Total de aulas: {progress.get('total_class')}\n',
+                    f'Aulas necessária para a próxima faixa: {progress.get('class_for_next_belt')}'
+                )
+            else:
+                self.progress_result.value = f'Erro ao consultar aluno: {response.text}'
+            self.page.update()
+        except Exception as err:
+            self.progress_result.value = f'Erro: {str(err)}'
             self.page.update()
