@@ -48,7 +48,8 @@ class AcademyViews:
             selected_index=0,
             tabs=[
                 ft.Tab(text='Novo Aluno', content=self.create_student_tab()),
-                ft.Tab(text='Listar Aluno', content=self.list_student_tab())
+                ft.Tab(text='Listar Aluno', content=self.list_student_tab()),
+                ft.Tab(text='Cadastrar Aula', content=self.book_class_tab()),
             ]
         )
     
@@ -63,11 +64,21 @@ class AcademyViews:
             ft.ElevatedButton(text='Novo Aluno', on_click=self.create_student_click)
         ], scroll=True)
     
+    ## List Student Tab
     def list_student_tab(self):
         return ft.Column([
             self.list_student_tab,
             self.list_result,
             ft.ElevatedButton(text='Listar Alunos', on_click=self.list_student_click)
+        ], scroll=True)
+    
+    ## Add Classes Progress tab
+    def book_class_tab(self):
+        return ft.Column([
+            self.email_class_field,
+            self.qtd_class_field,
+            ft.ElevatedButton(text='Marcar aula realizada!', on_click=self.book_class_click),
+            self.class_result,
         ], scroll=True)
     
     # Click methods
@@ -103,4 +114,18 @@ class AcademyViews:
             self.page.update()
         except Exception as err:
             self.list_result.value = f'Erro: {str(err)}'
+            self.page.update()
+
+    ## Class Progress Click
+    def book_class_click(self, e):
+        try:
+            response = self.controller.handle_book_class(self.qtd_class_field.value, self.email_class_field.value)
+
+            if response.status_code == 200:
+                self.class_result.value = f'Sucesso'
+            else:
+                self.class_result.value = f'Erro ao resgitrar o progresso do aluno'
+                self.page.update()
+        except Exception as err:
+            self.class_result.value = f'Erro: {str(err)}'
             self.page.update()
