@@ -107,7 +107,7 @@ class AcademyViews:
     ## Create click method
     def create_student_click(self, e):
         try:
-            response = self.controller.handle_create_student(self.name_field, self.email_field, self.belt_field, self.date_birth_field)
+            response = self.controller.handle_create_student(self.name_field.value, self.email_field.value, self.belt_field.value, self.date_birth_field.value)
 
             self.create_result.value = 'Create student sucess!' if response.status_code==200 else 'Erro ao criar o aluno!'
             self.page.update()
@@ -143,11 +143,8 @@ class AcademyViews:
         try:
             response = self.controller.handle_book_class(self.qtd_class_field.value, self.email_class_field.value)
 
-            if response.status_code == 200:
-                self.class_result.value = f'Sucesso'
-            else:
-                self.class_result.value = f'Erro ao resgitrar o progresso do aluno'
-                self.page.update()
+            self.class_result.value = f'Sucesso' if response.status_code == 200 else 'Erro ao resgitrar o progresso do aluno'
+            self.page.update()
         except Exception as err:
             self.class_result.value = f'Erro: {str(err)}'
             self.page.update()
@@ -156,17 +153,14 @@ class AcademyViews:
     def consult_progres_click(self, e):
         try:
             response = self.controller.handle_consult_progress(self.email_progress_field)
-            if response.status_code == 200:
-                progress = response.json()
-                self.progress_result.value = (
-                    f'Nome: {progress.get('name')}\n',
-                    f'Email: {progress.get('email')}\n',
-                    f'Faixa: {progress.get('belt')}\n',
-                    f'Total de aulas: {progress.get('total_class')}\n',
-                    f'Aulas necessária para a próxima faixa: {progress.get('class_for_next_belt')}'
-                )
-            else:
-                self.progress_result.value = f'Erro ao consultar aluno: {response.text}'
+            progress = response.json()
+            self.progress_result.value = (
+                f'Nome: {progress.get('name')}\n',
+                f'Email: {progress.get('email')}\n',
+                f'Faixa: {progress.get('belt')}\n',
+                f'Total de aulas: {progress.get('total_class')}\n',
+                f'Aulas necessária para a próxima faixa: {progress.get('class_for_next_belt')}'
+            ) if response.status_code == 200 else f'Erro ao consultar aluno: {response.text}'
             self.page.update()
         except Exception as err:
             self.progress_result.value = f'Erro: {str(err)}'
@@ -180,11 +174,8 @@ class AcademyViews:
                 self.update_result.value = 'ID do Aluno é obrigatório'
             else:
                 response = self.controller.handle_update_student(id_student, self.name_update_field.value, self.email_update_field, self.belt_update_field, self.date_update_field.value)
-                if response.status_code==200:
-                    student = response.json()
-                    self.update_result.value = f'Aluno atualizado com sucesso: {student.get('name')}'
-                else:
-                    self.update_result.value = f'Erro ao atualizar aluno: {response.text}'
+                student = response.json()
+                self.update_result.value = f'Aluno atualizado com sucesso: {student.get('name')}' if response.status_code==200 else f'Erro ao atualizar aluno: {response.text}'
             self.page.update()
         except Exception as err:
             self.update_result.value = f'Erro: {str(err)}'
